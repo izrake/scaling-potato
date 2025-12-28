@@ -1,0 +1,3005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Enricher - Admin Panel</title>
+    <!-- RevoGrid -->
+    <script src="https://cdn.jsdelivr.net/npm/@revolist/revogrid@latest/dist/revo-grid/revo-grid.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Left Sidebar */
+        .left-sidebar {
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sidebar-user {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .new-sheet-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-search {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background: #f0f4ff;
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .nav-subitem {
+            padding: 6px 16px 6px 40px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .nav-subitem:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-subitem.active {
+            background: #f0f4ff;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn.primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .action-btn.primary:hover {
+            background: #5568d3;
+        }
+
+        .content-body {
+            flex: 1;
+            overflow: auto;
+            padding: 24px;
+        }
+
+        /* Right Sidebar */
+        .right-sidebar {
+            width: 360px;
+            background: #ffffff;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .chat-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-icon-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input-top {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+        }
+
+        .message-section {
+            margin-bottom: 12px;
+        }
+
+        .message-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .message-section-content {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .message-section.collapsed .message-section-content {
+            display: none;
+        }
+
+        .chat-input-bottom {
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .chat-submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .chat-submit-btn:hover {
+            background: #5568d3;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-field {
+            margin-bottom: 20px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .modal-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .modal-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .modal-link:hover {
+            text-decoration: underline;
+        }
+
+        .modal-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .modal-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .modal-btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .help-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            margin-left: 4px;
+            cursor: help;
+        }
+
+        /* RevoGrid Native Styling - Let RevoGrid handle all grid styling */
+        #gridContent {
+            width: 100%;
+            height: 100%;
+        }
+        
+        revo-grid {
+            width: 100%;
+            height: calc(100vh - 200px);
+            display: block;
+        }
+        
+        /* Minimal styling for add column button */
+        .add-column-btn-revo {
+            margin: 12px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        /* Legacy styles for backward compatibility */
+        .container {
+            display: none;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            background: #e0e5ec;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 8px 8px 16px #b8bec7, -8px -8px 16px #ffffff;
+        }
+
+        .section h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        .upload-area {
+            border: none;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            background: #e0e5ec;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: inset 6px 6px 12px #b8bec7, inset -6px -6px 12px #ffffff;
+        }
+
+        .upload-area:hover {
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+        }
+
+        .upload-area.dragover {
+            box-shadow: inset 2px 2px 4px #b8bec7, inset -2px -2px 4px #ffffff;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: #e0e5ec;
+            color: #4a5568;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+            transition: all 0.3s;
+            transition: transform 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+        
+        .btn:active {
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+        
+        .btn-linkedin {
+            background: #0077b5;
+            color: white;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .config-section {
+            background: #e0e5ec;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            background: #e0e5ec;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+            color: #4a5568;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            box-shadow: inset 2px 2px 4px #b8bec7, inset -2px -2px 4px #ffffff;
+        }
+
+        .job-card {
+            background: #e0e5ec;
+            border: none;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .job-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .job-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #e0e5ec;
+            color: #f59e0b;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .status-processing {
+            background: #e0e5ec;
+            color: #3b82f6;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .status-completed {
+            background: #e0e5ec;
+            color: #10b981;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .status-failed {
+            background: #e0e5ec;
+            color: #ef4444;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e5ec;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .alert-success {
+            background: #e0e5ec;
+            color: #10b981;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .alert-error {
+            background: #e0e5ec;
+            color: #ef4444;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .alert-info {
+            background: #e0e5ec;
+            color: #3b82f6;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background: #e0e5ec;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #d1d9e6;
+        }
+
+        .results-table th {
+            background: #e0e5ec;
+            font-weight: 600;
+            color: #4a5568;
+            box-shadow: inset 0 -2px 4px #b8bec7;
+        }
+
+        .results-table tr {
+            background: #e0e5ec;
+        }
+
+        .results-table tr:hover {
+            background: #d1d9e6;
+        }
+        
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #d1d9e6;
+        }
+        
+        .tab-button {
+            padding: 15px 30px;
+            background: #e0e5ec;
+            border: none;
+            border-radius: 15px 15px 0 0;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            box-shadow: 4px 4px 8px #b8bec7, -4px -4px 8px #ffffff;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            box-shadow: 2px 2px 4px #b8bec7, -2px -2px 4px #ffffff;
+        }
+        
+        .tab-button.active {
+            background: #e0e5ec;
+            color: #667eea;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Excel-like Grid Styles */
+        .grid-container {
+            background: #e0e5ec;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 6px 6px 12px #b8bec7, -6px -6px 12px #ffffff;
+            overflow-x: auto;
+        }
+        
+        .grid-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .grid-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #e0e5ec;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .grid-table th {
+            background: #e0e5ec;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-right: 2px solid #d1d9e6;
+            border-bottom: 2px solid #d1d9e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .grid-table th:last-child {
+            border-right: none;
+        }
+        
+        .grid-table td {
+            background: #e0e5ec;
+            padding: 12px 15px;
+            border-right: 2px solid #d1d9e6;
+            border-bottom: 2px solid #d1d9e6;
+            min-width: 150px;
+        }
+        
+        .grid-table td:last-child {
+            border-right: none;
+        }
+        
+        .grid-table tr:hover td {
+            background: #d1d9e6;
+        }
+        
+        .grid-table input,
+        .grid-table textarea {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            background: transparent;
+            color: #4a5568;
+            font-size: 0.9em;
+            resize: none;
+        }
+        
+        .grid-table input:focus,
+        .grid-table textarea:focus {
+            outline: 2px solid #667eea;
+            border-radius: 4px;
+            background: #ffffff;
+        }
+        
+        .column-config {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .column-config input {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #e0e5ec;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+            color: #4a5568;
+        }
+        
+        .column-type-select {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #e0e5ec;
+            box-shadow: inset 4px 4px 8px #b8bec7, inset -4px -4px 8px #ffffff;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <div class="left-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-user">LinkedIn Enricher</div>
+                <button class="new-sheet-btn" onclick="switchView('enrichment')">
+                    <span>+</span> New Job
+                </button>
+                <input type="text" class="sidebar-search" placeholder="Search...">
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-item active" onclick="switchView('messages')">
+                        <span>📊</span> Message Manager
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Enrichment</div>
+                    <div class="nav-item" onclick="switchView('enrichment')">
+                        <span>📤</span> Upload CSV
+                    </div>
+                    <div class="nav-item" onclick="switchView('jobs')">
+                        <span>📋</span> Active Jobs
+                    </div>
+                    <div class="nav-item" onclick="switchView('profiles')">
+                        <span>✨</span> Enriched Profiles
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="contentTitle">Message Manager</div>
+                <div class="content-actions">
+                    <button class="action-btn" onclick="undoAction()">↶ Undo</button>
+                    <button class="action-btn" onclick="redoAction()">↷ Redo</button>
+                    <button class="action-btn primary" onclick="enrichSelected()">Enrich</button>
+                    <button class="action-btn" onclick="shareSheet()">Share</button>
+                </div>
+            </div>
+            <div class="content-body" id="mainContentBody">
+            <!-- Upload Section -->
+            <div class="section">
+                <h2>📤 Upload CSV File</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p style="font-size: 1.2em; margin-bottom: 10px;">Drag and drop your CSV file here</p>
+                    <p style="color: #666; margin-bottom: 20px;">or click to browse</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".csv">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                </div>
+                <div id="uploadStatus"></div>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="section">
+                <h2>⚙️ Configuration</h2>
+                <div class="config-section">
+                    <div class="form-group">
+                        <label for="debugPort">Chrome Debug Port:</label>
+                        <input type="number" id="debugPort" value="9222" min="1024" max="65535">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxParallel">Max Parallel Profiles:</label>
+                        <input type="number" id="maxParallel" value="5" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="waitTime">Wait Time (seconds):</label>
+                        <input type="number" id="waitTime" value="5" min="1" max="30">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Status Section -->
+            <div class="section" id="jobSection" style="display: none;">
+                <h2>📊 Job Status</h2>
+                <div id="jobStatus"></div>
+                
+                <!-- Current Profile Being Processed -->
+                <div id="currentProfileSection" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🔄 Currently Processing</h3>
+                    <div id="currentProfile" class="job-card" style="background: #e7f3ff; border: 2px solid #667eea;"></div>
+                </div>
+                
+                <!-- Real-time Progress -->
+                <div id="realtimeProgress" style="margin-top: 20px;"></div>
+                
+                <!-- Scraped Website Text Preview -->
+                <div id="scrapedTextSection" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">📄 Latest Scraped Website Text</h3>
+                    <div id="scrapedTextPreview" class="job-card" style="background: #f8f9fa; border: 2px solid #667eea; max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                
+                <!-- All Profiles -->
+                <div id="allProfilesSection" style="display: none; margin-top: 30px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">📋 All Profiles</h3>
+                    <div id="allProfiles"></div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="section" id="resultsSection" style="display: none;">
+                <h2>✅ Results</h2>
+                <div id="resultsContent"></div>
+            </div>
+            
+            <!-- Enriched Profiles Section -->
+            <div class="section" id="enrichedProfilesSection">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>✨ Enriched Profiles</h2>
+                    <button onclick="loadEnrichedProfiles()" class="btn btn-primary" style="padding: 10px 20px;">🔄 Refresh</button>
+                </div>
+                <div id="enrichedProfilesContent">
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        <p>Click "Refresh" to load enriched profiles from the database</p>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <!-- Tab 2: Message Manager -->
+            <div id="messagesTab" class="tab-content">
+                <div class="section">
+                    <h2>📝 Message Manager</h2>
+                    
+                    <!-- Column Management -->
+                    <div class="grid-container" style="margin-bottom: 20px;">
+                        <h3 style="color: #4a5568; margin-bottom: 15px;">Column Management</h3>
+                        <div id="columnConfigs"></div>
+                        <div class="column-config">
+                            <input type="text" id="newColumnName" placeholder="Column Name" style="flex: 1;">
+                            <select id="newColumnType" class="column-type-select">
+                                <option value="text">Text</option>
+                                <option value="1st_connect">1st Connect (300 chars)</option>
+                                <option value="after_connect">After Connect (uses previous context)</option>
+                            </select>
+                            <button onclick="addColumn()" class="btn btn-primary">+ Add Column</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Grid -->
+                    <div class="grid-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #4a5568;">Profiles Grid</h3>
+                            <button onclick="loadGridData()" class="btn btn-primary">🔄 Load Enriched Profiles</button>
+                        </div>
+                        <div id="gridContent" style="overflow-x: auto;">
+                            <div style="text-align: center; padding: 40px; color: #718096;">
+                                <p>Click "Load Enriched Profiles" to populate the grid</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar (AI Assistant) -->
+        <div class="right-sidebar">
+            <div class="sidebar-header">
+                <div class="chat-header">
+                    <div class="chat-title">AI Assistant</div>
+                    <div class="chat-actions">
+                        <button class="chat-icon-btn">+</button>
+                        <button class="chat-icon-btn">🔍</button>
+                        <button class="chat-icon-btn">🕐</button>
+                    </div>
+                </div>
+                <input type="text" class="chat-input-top" placeholder="Ask AI to help with your data..." id="chatInputTop">
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message">
+                    <div class="message-section">
+                        <div class="message-section-title" onclick="toggleSection(this)">
+                            <span>▼</span> Welcome
+                        </div>
+                        <div class="message-section-content">
+                            I'm your AI assistant. I can help you:
+                            <ul>
+                                <li>Generate personalized messages</li>
+                                <li>Analyze your enriched profiles</li>
+                                <li>Create custom columns</li>
+                                <li>Export data in various formats</li>
+                            </ul>
+                            Type a question or request above to get started!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-bottom">
+                <input type="text" class="chat-input-field" placeholder="Type a message..." id="chatInputBottom">
+                <div style="font-size: 12px; color: #999; margin-bottom: 8px;">Upload or drag files</div>
+                <button class="chat-submit-btn" onclick="sendChatMessage()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Column Modal -->
+    <div id="addColumnModal" class="modal-overlay" onclick="if(event.target === this) closeAddColumnModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">Add Column</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="modalCheckbox" style="cursor: pointer;">
+                    <button class="modal-close" onclick="closeAddColumnModal()">×</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-field">
+                    <label class="modal-label" for="modalColumnName">Column name</label>
+                    <input type="text" id="modalColumnName" class="modal-input" placeholder="Column name">
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-label" for="modalDataType">Data Type</label>
+                    <select id="modalDataType" class="modal-select" onchange="updateDataTypeDisplay()">
+                        <option value="text">Text</option>
+                        <option value="1st_connect">1st Connect (300 chars)</option>
+                        <option value="after_connect">After Connect (uses previous context)</option>
+                    </select>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-label" for="modalPrompt">Prompt</label>
+                    <textarea id="modalPrompt" class="modal-textarea" placeholder="Add specific instructions for the agent, e.g., 'Find the email from Apollo.'"></textarea>
+                    <a href="#" class="modal-link" style="margin-top: 8px; display: inline-block;">> Add format instructions</a>
+                </div>
+                
+                <div class="modal-field">
+                    <label class="modal-label">
+                        Context scope
+                        <span class="help-icon">?</span>
+                    </label>
+                    <select id="modalContextScope" class="modal-select">
+                        <option value="all">All</option>
+                        <option value="current_row">Current Row</option>
+                        <option value="column">Column</option>
+                    </select>
+                </div>
+                
+                <div class="modal-field">
+                    <div class="modal-toggle">
+                        <label class="modal-label" style="margin: 0;">Restrict sources</label>
+                        <span class="help-icon">?</span>
+                        <div class="toggle-switch" id="restrictSourcesToggle" onclick="toggleRestrictSources()"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" onclick="closeAddColumnModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmAddColumn()" style="display: flex; align-items: center; gap: 6px;">
+                    <span>⚡</span> Enrich Column
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legacy container (hidden) -->
+    <div class="container" style="display: none;">
+        <div class="header">
+            <h1>🔗 LinkedIn Enricher</h1>
+            <p>Admin Panel - Upload CSV and Enrich LinkedIn Profiles</p>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        let statusInterval = null;
+        let eventSource = null;
+        let profilesData = {};
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadStatus = document.getElementById('uploadStatus');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.name.endsWith('.csv')) {
+                showAlert('uploadStatus', 'Please upload a CSV file.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showAlert('uploadStatus', 'Uploading file...', 'info');
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showAlert('uploadStatus', data.error, 'error');
+                } else {
+                    currentJobId = data.job_id;
+                    showAlert('uploadStatus', `File uploaded! Found ${data.total_urls} LinkedIn URLs.`, 'success');
+                    showJobStatus(data.job_id);
+                    startProcessing(data.job_id);
+                }
+            })
+            .catch(error => {
+                showAlert('uploadStatus', `Upload failed: ${error.message}`, 'error');
+            });
+        }
+
+        function startProcessing(jobId) {
+            const config = {
+                debug_port: parseInt(document.getElementById('debugPort').value),
+                max_parallel: parseInt(document.getElementById('maxParallel').value),
+                wait_time: parseInt(document.getElementById('waitTime').value)
+            };
+
+            fetch(`/process/${jobId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showAlert('uploadStatus', data.error, 'error');
+                } else {
+                    startStatusPolling(jobId);
+                }
+            })
+            .catch(error => {
+                showAlert('uploadStatus', `Processing failed: ${error.message}`, 'error');
+            });
+        }
+
+        function startStatusPolling(jobId) {
+            // Start SSE connection for real-time updates
+            startSSEConnection(jobId);
+            
+            // Also poll for status updates
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+
+            statusInterval = setInterval(() => {
+                fetch(`/status/${jobId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            clearInterval(statusInterval);
+                            showAlert('uploadStatus', data.error, 'error');
+                        } else {
+                            updateJobStatus(data);
+                            if (data.current_profile) {
+                                updateCurrentProfile(data.current_profile);
+                            }
+                            if (data.status === 'completed' || data.status === 'failed') {
+                                clearInterval(statusInterval);
+                                if (eventSource) {
+                                    eventSource.close();
+                                }
+                                if (data.status === 'completed') {
+                                    loadResults(jobId);
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Status polling error:', error);
+                    });
+                
+                // Load all profiles
+                loadAllProfiles(jobId);
+            }, 2000); // Poll every 2 seconds
+        }
+        
+        function startSSEConnection(jobId) {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            eventSource = new EventSource(`/stream/${jobId}`);
+            
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'status') {
+                        updateJobStatus(data);
+                    } else if (data.step) {
+                        // Step progress update
+                        handleStepProgress(data);
+                    }
+                } catch (e) {
+                    console.error('Error parsing SSE data:', e);
+                }
+            };
+            
+            eventSource.onerror = function(error) {
+                console.error('SSE error:', error);
+            };
+        }
+        
+        function handleStepProgress(data) {
+            const { profile_id, step, data: stepData } = data;
+            
+            // Update profile data
+            if (!profilesData[profile_id]) {
+                profilesData[profile_id] = {};
+            }
+            profilesData[profile_id][step] = stepData;
+            profilesData[profile_id].current_step = step;
+            
+            // Show scraped text when step5 completes
+            if (step === 'step5' && stepData.company_description) {
+                showScrapedText(stepData.company_description, stepData.website || 'N/A');
+            }
+            
+            // Update current profile display
+            updateCurrentProfileDisplay(profile_id);
+            
+            // Update all profiles display
+            if (currentJobId) {
+                loadAllProfiles(currentJobId);
+            }
+        }
+        
+        function showScrapedText(text, website) {
+            const scrapedTextSection = document.getElementById('scrapedTextSection');
+            const scrapedTextPreview = document.getElementById('scrapedTextPreview');
+            
+            scrapedTextSection.style.display = 'block';
+            
+            const html = `
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #667eea;">Website:</strong> <a href="${website}" target="_blank">${website}</a>
+                </div>
+                <div style="padding: 10px; background: white; border-radius: 4px; max-height: 350px; overflow-y: auto;">
+                    <div style="color: #333; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em;">${text}</div>
+                </div>
+                <div style="margin-top: 10px; color: #666; font-size: 0.85em;">
+                    Text length: ${text.length} characters
+                </div>
+            `;
+            
+            scrapedTextPreview.innerHTML = html;
+        }
+        
+        function updateCurrentProfile(profile) {
+            document.getElementById('currentProfileSection').style.display = 'block';
+            const currentProfileDiv = document.getElementById('currentProfile');
+            
+            const stepNames = {
+                'step1': '🔌 Browser Connected',
+                'step2': '📄 Opening Profile',
+                'step3': '👤 Extracting User Info',
+                'step4': '🏢 Navigating to Company',
+                'step5': '🌐 Scraping Website',
+                'step6': '✅ Compiling Data'
+            };
+            
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div>
+                        <strong style="font-size: 1.1em;">${profile.linkedin_url}</strong>
+                    </div>
+                    <span class="job-status status-${profile.status}">${profile.status.toUpperCase()}</span>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Current Step:</strong> ${stepNames[profile.current_step] || profile.current_step || 'Starting...'}
+                </div>
+            `;
+            
+            if (profile.name) {
+                html += `<div style="margin: 5px 0;"><strong>Name:</strong> ${profile.name}</div>`;
+            }
+            if (profile.valid_experience === false) {
+                html += `<div style="margin: 5px 0; color: #ffc107; font-weight: 600;">⚠️ Invalid Experience: ${profile.experience_reason || 'No valid latest experience found'}</div>`;
+            }
+            if (profile.company) {
+                html += `<div style="margin: 5px 0;"><strong>Company:</strong> ${profile.company}</div>`;
+            }
+            if (profile.website) {
+                html += `<div style="margin: 5px 0;"><strong>Website:</strong> <a href="${profile.website}" target="_blank">${profile.website}</a></div>`;
+            }
+            if (profile.company_description) {
+                const desc = profile.company_description;
+                html += `<div style="margin: 10px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #667eea;"><strong style="color: #667eea; display: block; margin-bottom: 8px;">📄 Scraped Website Text:</strong><div style="margin-top: 8px; color: #333; line-height: 1.6; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em;">${desc}</div></div>`;
+            }
+            
+            currentProfileDiv.innerHTML = html;
+        }
+        
+        function updateCurrentProfileDisplay(profileId) {
+            const profile = profilesData[profileId];
+            if (!profile) return;
+            
+            const stepNames = {
+                'step1': '🔌 Browser Connected',
+                'step2': '📄 Opening Profile',
+                'step3': '👤 Extracting User Info',
+                'step4': '🏢 Navigating to Company',
+                'step5': '🌐 Scraping Website',
+                'step6': '✅ Compiling Data'
+            };
+            
+            const currentProfileDiv = document.getElementById('currentProfile');
+            if (!currentProfileDiv) return;
+            
+            let html = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div>
+                        <strong style="font-size: 1.1em;">Processing Profile...</strong>
+                    </div>
+                    <span class="job-status status-processing">PROCESSING</span>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong>Current Step:</strong> ${stepNames[profile.current_step] || 'Starting...'}
+                </div>
+            `;
+            
+            if (profile.step3 && profile.step3.name) {
+                html += `<div style="margin: 5px 0;"><strong>Name:</strong> ${profile.step3.name}</div>`;
+            }
+            if (profile.step3 && profile.step3.valid_experience === false) {
+                html += `<div style="margin: 5px 0; color: #ffc107; font-weight: 600;">⚠️ Invalid Experience: ${profile.step3.experience_reason || 'No valid latest experience found'}</div>`;
+            }
+            if (profile.step3 && profile.step3.company_name) {
+                html += `<div style="margin: 5px 0;"><strong>Company:</strong> ${profile.step3.company_name}</div>`;
+            }
+            if (profile.step4 && profile.step4.website) {
+                html += `<div style="margin: 5px 0;"><strong>Website:</strong> <a href="${profile.step4.website}" target="_blank">${profile.step4.website}</a></div>`;
+            }
+            if (profile.step5 && profile.step5.company_description) {
+                const desc = profile.step5.company_description;
+                html += `<div style="margin: 10px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #667eea;"><strong style="color: #667eea; display: block; margin-bottom: 8px;">📄 Scraped Website Text:</strong><div style="margin-top: 8px; color: #333; line-height: 1.6; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em;">${desc}</div></div>`;
+            }
+            
+            currentProfileDiv.innerHTML = html;
+        }
+        
+        function loadAllProfiles(jobId) {
+            fetch(`/profiles/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.profiles) {
+                        displayAllProfiles(data.profiles);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading profiles:', error);
+                });
+        }
+        
+        function displayAllProfiles(profiles) {
+            const allProfilesSection = document.getElementById('allProfilesSection');
+            const allProfilesDiv = document.getElementById('allProfiles');
+            
+            allProfilesSection.style.display = 'block';
+            
+            let html = '';
+            
+            profiles.forEach(profile => {
+                const stepNames = {
+                    'step1': '🔌 Browser Connected',
+                    'step2': '📄 Opening Profile',
+                    'step3': '👤 Extracting User Info',
+                    'step4': '🏢 Navigating to Company',
+                    'step5': '🌐 Scraping Website',
+                    'step6': '✅ Compiling Data'
+                };
+                
+                const isEnriched = profile.status === 'completed' && profile.name && profile.company_name;
+                
+                html += `
+                    <div class="job-card" style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong>${profile.linkedin_url}</strong>
+                            </div>
+                            <span class="job-status status-${profile.status}">${profile.status.toUpperCase()}</span>
+                        </div>
+                        ${profile.current_step ? `<div style="margin: 5px 0; color: #666;">Step: ${stepNames[profile.current_step] || profile.current_step}</div>` : ''}
+                        ${profile.name ? `<div style="margin: 5px 0;"><strong>Name:</strong> ${profile.name}</div>` : ''}
+                        ${profile.valid_experience === false ? `<div style="margin: 5px 0; color: #ffc107; font-weight: 600;">⚠️ Invalid Experience: ${profile.experience_reason || 'No valid latest experience found'}</div>` : ''}
+                        ${profile.company_name ? `<div style="margin: 5px 0;"><strong>Company:</strong> ${profile.company_name}</div>` : ''}
+                        ${profile.website ? `<div style="margin: 5px 0;"><strong>Website:</strong> <a href="${profile.website}" target="_blank">${profile.website}</a></div>` : ''}
+                        ${profile.company_description ? `<div style="margin: 10px 0; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #667eea;"><strong style="color: #667eea; display: block; margin-bottom: 8px;">📄 Scraped Website Text:</strong><div style="margin-top: 8px; color: #333; line-height: 1.6; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em;">${profile.company_description}</div></div>` : ''}
+                        ${isEnriched ? `
+                            <div style="margin: 15px 0; padding: 10px; background: #e7f3ff; border-radius: 6px; border: 1px solid #667eea;">
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                    <button onclick="generateMessages(${profile.id}, 'email')" class="btn" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">📧 Generate Email</button>
+                                    <button onclick="generateMessages(${profile.id}, 'linkedin')" class="btn" style="background: #0077b5; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">💼 Generate LinkedIn Messages</button>
+                                </div>
+                                <div id="messages-${profile.id}" style="display: none;"></div>
+                            </div>
+                        ` : ''}
+                        ${profile.error ? `<div style="margin: 5px 0; color: #dc3545;"><strong>Error:</strong> ${profile.error}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            allProfilesDiv.innerHTML = html;
+        }
+        
+        function generateMessages(profileId, type) {
+            const messagesDiv = document.getElementById(`messages-${profileId}`);
+            messagesDiv.style.display = 'block';
+            messagesDiv.innerHTML = '<div style="padding: 10px; color: #667eea;">⏳ Generating messages...</div>';
+            
+            fetch(`/generate-messages/${profileId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    messagesDiv.innerHTML = `<div style="padding: 10px; color: #dc3545;">❌ Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const messages = data.messages;
+                let html = '<div style="margin-top: 10px;">';
+                
+                if (type === 'email' && messages.email) {
+                    html += `
+                        <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong style="color: #667eea;">📧 Sales Email</strong>
+                                <button onclick="copyToClipboard('email-${profileId}', this)" style="background: #667eea; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Copy</button>
+                            </div>
+                            <div id="email-${profileId}" style="white-space: pre-wrap; line-height: 1.6; color: #333;">${messages.email}</div>
+                        </div>
+                    `;
+                }
+                
+                if (type === 'linkedin') {
+                    if (messages.linkedin_connection) {
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <strong style="color: #0077b5;">💼 LinkedIn Connection Request</strong>
+                                    <button onclick="copyToClipboard('linkedin-conn-${profileId}', this)" style="background: #0077b5; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Copy</button>
+                                </div>
+                                <div id="linkedin-conn-${profileId}" style="white-space: pre-wrap; line-height: 1.6; color: #333;">${messages.linkedin_connection}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (messages.linkedin_followup) {
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 6px; border: 1px solid #ddd;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <strong style="color: #0077b5;">💬 LinkedIn Follow-up Message</strong>
+                                    <button onclick="copyToClipboard('linkedin-followup-${profileId}', this)" style="background: #0077b5; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Copy</button>
+                                </div>
+                                <div id="linkedin-followup-${profileId}" style="white-space: pre-wrap; line-height: 1.6; color: #333;">${messages.linkedin_followup}</div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                html += '</div>';
+                messagesDiv.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error generating messages:', error);
+                messagesDiv.innerHTML = `<div style="padding: 10px; color: #dc3545;">❌ Error generating messages. Please try again.</div>`;
+            });
+        }
+        
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const text = element.textContent || element.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Show temporary success message
+                    const originalText = button.textContent;
+                    button.textContent = '✓ Copied!';
+                    button.style.background = '#28a745';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy to clipboard');
+                });
+            }
+        }
+
+        
+        // View Management
+        let currentColumns = [];
+        let gridData = [];
+        let currentView = 'messages';
+        
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const contentBody = document.getElementById('mainContentBody');
+            const contentTitle = document.getElementById('contentTitle');
+            
+            if (!contentBody || !contentTitle) {
+                console.error('Content body or title not found');
+                return;
+            }
+            
+            if (viewName === 'messages') {
+                contentTitle.textContent = 'Message Manager';
+                contentBody.innerHTML = getMessageManagerView();
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[0]) navItems[0].classList.add('active');
+            } else if (viewName === 'enrichment') {
+                contentTitle.textContent = 'Upload CSV File';
+                contentBody.innerHTML = getEnrichmentView();
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[1]) navItems[1].classList.add('active');
+                // Re-initialize file upload handlers
+                setTimeout(() => {
+                    initFileUpload();
+                }, 100);
+            } else if (viewName === 'jobs') {
+                contentTitle.textContent = 'Active Jobs';
+                contentBody.innerHTML = getJobsView();
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[2]) navItems[2].classList.add('active');
+            } else if (viewName === 'profiles') {
+                contentTitle.textContent = 'Enriched Profiles';
+                contentBody.innerHTML = getProfilesView();
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems[3]) navItems[3].classList.add('active');
+            }
+        }
+        
+        function getMessageManagerView() {
+            // Auto-load grid data when view is switched
+            setTimeout(() => {
+                loadGridData();
+            }, 100);
+            
+            return `
+                <div id="gridContent" style="overflow-x: auto; background: white; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <div style="text-align: center; padding: 40px; color: #718096;">
+                        <p>Loading enriched profiles...</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getEnrichmentView() {
+            return `
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: #333; margin-bottom: 20px; font-size: 20px; font-weight: 600;">📤 Upload CSV File</h2>
+                    <div class="upload-area" id="uploadArea" style="background: #f8f9fa; border: 2px dashed #e0e0e0; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer;">
+                        <div class="upload-icon">📁</div>
+                        <p style="font-size: 1.2em; margin-bottom: 10px;">Drag and drop your CSV file here</p>
+                        <p style="color: #666; margin-bottom: 20px;">or click to browse</p>
+                        <input type="file" id="fileInput" class="file-input" accept=".csv">
+                        <button class="action-btn primary" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                    </div>
+                    <div id="uploadStatus"></div>
+                </div>
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: #333; margin-bottom: 20px; font-size: 20px; font-weight: 600;">⚙️ Configuration</h2>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+                        <div class="form-group">
+                            <label for="debugPort" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Chrome Debug Port:</label>
+                            <input type="number" id="debugPort" value="9222" min="1024" max="65535" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="maxParallel" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Max Parallel Profiles:</label>
+                            <input type="number" id="maxParallel" value="5" min="1" max="10" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="waitTime" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Wait Time (seconds):</label>
+                            <input type="number" id="waitTime" value="5" min="1" max="30" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px;">
+                        </div>
+                    </div>
+                </div>
+                <div id="jobSection" style="display: none;">
+                    <h2 style="color: #333; margin-bottom: 20px; font-size: 20px; font-weight: 600;">📊 Job Status</h2>
+                    <div id="jobStatus"></div>
+                </div>
+            `;
+        }
+        
+        function getJobsView() {
+            // Auto-load jobs when view is switched
+            setTimeout(() => {
+                loadActiveJobs();
+            }, 100);
+            
+            return `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: #333; font-size: 20px; font-weight: 600;">📋 Active Jobs</h2>
+                        <button onclick="loadActiveJobs()" class="action-btn primary">🔄 Refresh</button>
+                    </div>
+                    <div id="activeJobsContent">
+                        <div style="text-align: center; padding: 40px; color: #718096;">
+                            <p>Loading jobs...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadActiveJobs() {
+            const contentDiv = document.getElementById('activeJobsContent');
+            if (!contentDiv) return;
+            
+            contentDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: #667eea;">⏳ Loading jobs...</div>';
+            
+            fetch('/active-jobs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        contentDiv.innerHTML = `<div style="padding: 20px; color: #ef4444;">❌ Error: ${data.error}</div>`;
+                        return;
+                    }
+                    
+                    const jobs = data.jobs || [];
+                    
+                    if (jobs.length === 0) {
+                        contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #718096;"><p>No jobs found</p></div>';
+                        return;
+                    }
+                    
+                    let html = `<div style="margin-bottom: 20px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                        <strong style="color: #333; font-size: 14px;">Total: ${jobs.length} job(s)</strong>
+                    </div>`;
+                    
+                    jobs.forEach(job => {
+                        const progress = job.total > 0 ? Math.round((job.processed / job.total) * 100) : 0;
+                        const statusColors = {
+                            'pending': '#f59e0b',
+                            'processing': '#3b82f6',
+                            'completed': '#10b981',
+                            'failed': '#ef4444',
+                            'cancelled': '#6b7280'
+                        };
+                        const statusColor = statusColors[job.status] || '#666';
+                        
+                        html += `
+                            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <strong style="color: #333; font-size: 16px; font-weight: 600;">${job.filename || 'Untitled Job'}</strong>
+                                        <div style="color: #666; margin-top: 4px; font-size: 13px;">Job ID: ${job.id}</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <span style="padding: 6px 12px; background: ${statusColor}; color: white; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">${job.status}</span>
+                                        ${job.status === 'processing' || job.status === 'pending' ? `
+                                            <button onclick="stopJob('${job.id}')" class="action-btn" style="padding: 8px 16px; background: #ef4444; color: white; border-color: #ef4444;">⏹ Stop</button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                
+                                <div style="margin: 16px 0;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span style="color: #666; font-size: 14px;">Progress: ${job.processed} / ${job.total}</span>
+                                        <span style="color: #666; font-size: 14px;">${progress}%</span>
+                                    </div>
+                                    <div style="width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${progress}%; height: 100%; background: ${statusColor}; transition: width 0.3s;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0; color: #999; font-size: 12px;">
+                                    Created: ${job.created_at ? new Date(job.created_at).toLocaleString() : 'N/A'}
+                                    ${job.started_at ? ` | Started: ${new Date(job.started_at).toLocaleString()}` : ''}
+                                    ${job.completed_at ? ` | Completed: ${new Date(job.completed_at).toLocaleString()}` : ''}
+                                </div>
+                                
+                                ${job.error ? `
+                                    <div style="margin-top: 12px; padding: 12px; background: #fee; border-radius: 6px; border: 1px solid #fcc; color: #c33; font-size: 13px;">
+                                        <strong>Error:</strong> ${job.error}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading jobs:', error);
+                    contentDiv.innerHTML = `<div style="padding: 20px; color: #ef4444;">❌ Error loading jobs. Please try again.</div>`;
+                });
+        }
+        
+        function stopJob(jobId) {
+            if (!confirm('Are you sure you want to stop this job? This will cancel all remaining profiles.')) {
+                return;
+            }
+            
+            fetch(`/stop-job/${jobId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                alert('Job stop requested. It will stop after the current profile finishes processing.');
+                loadActiveJobs(); // Refresh the list
+            })
+            .catch(error => {
+                console.error('Error stopping job:', error);
+                alert('Error stopping job. Please try again.');
+            });
+        }
+        
+        function getProfilesView() {
+            // Auto-load profiles when view is switched
+            setTimeout(() => {
+                loadEnrichedProfiles(1);
+            }, 100);
+            
+            return `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: #333; font-size: 20px; font-weight: 600;">✨ Enriched Profiles</h2>
+                        <button onclick="loadEnrichedProfiles(1)" class="action-btn primary">🔄 Refresh</button>
+                    </div>
+                    <div id="enrichedProfilesContent">
+                        <div style="text-align: center; padding: 40px; color: #718096;">
+                            <p>Loading enriched profiles...</p>
+                        </div>
+                    </div>
+                    <div id="paginationControls" style="display: none; margin-top: 20px; padding: 16px; display: flex; justify-content: center; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                        <button onclick="loadEnrichedProfiles(currentPage - 1)" id="prevPageBtn" class="action-btn" disabled style="padding: 8px 16px;">← Previous</button>
+                        <span id="pageInfo" style="color: #333; font-size: 14px; font-weight: 500; padding: 0 16px;">Page 1</span>
+                        <button onclick="loadEnrichedProfiles(currentPage + 1)" id="nextPageBtn" class="action-btn" style="padding: 8px 16px;">Next →</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        let currentPage = 1;
+        let totalPages = 1;
+        
+        function loadEnrichedProfiles(page = 1) {
+            currentPage = page;
+            const contentDiv = document.getElementById('enrichedProfilesContent');
+            const paginationDiv = document.getElementById('paginationControls');
+            
+            if (!contentDiv) return;
+            
+            contentDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: #667eea;">⏳ Loading enriched profiles...</div>';
+            
+            fetch(`/enriched-profiles?page=${page}&limit=50`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        contentDiv.innerHTML = `<div style="padding: 20px; color: #ef4444;">❌ Error: ${data.error}</div>`;
+                        return;
+                    }
+                    
+                    const profiles = data.profiles || [];
+                    totalPages = data.total_pages || 1;
+                    
+                    if (profiles.length === 0) {
+                        contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #718096;"><p>No enriched profiles found in the database</p></div>';
+                        if (paginationDiv) paginationDiv.style.display = 'none';
+                        return;
+                    }
+                    
+                    let html = `<div style="margin-bottom: 20px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                        <strong style="color: #333; font-size: 14px;">Total: ${data.total || profiles.length} enriched profile(s)</strong>
+                        ${data.total > 50 ? `<span style="color: #666; font-size: 13px; margin-left: 10px;">Showing ${(page - 1) * 50 + 1}-${Math.min(page * 50, data.total)} of ${data.total}</span>` : ''}
+                    </div>`;
+                    
+                    profiles.forEach(profile => {
+                        html += `
+                            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <strong style="color: #333; font-size: 16px; font-weight: 600;">${profile.name || 'Unknown'}</strong>
+                                        ${profile.company_name ? `<div style="color: #666; margin-top: 4px; font-size: 14px;">${profile.company_name}</div>` : ''}
+                                    </div>
+                                    <span style="padding: 6px 12px; background: #10b981; color: white; border-radius: 12px; font-size: 12px; font-weight: 600;">ENRICHED</span>
+                                </div>
+                                
+                                <div style="margin: 16px 0; padding: 16px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                    <div style="margin: 8px 0; font-size: 14px;">
+                                        <strong style="color: #333;">LinkedIn:</strong> 
+                                        <a href="${profile.linkedin_url}" target="_blank" style="color: #667eea; text-decoration: none; margin-left: 8px;">${profile.linkedin_url}</a>
+                                    </div>
+                                    ${profile.website ? `
+                                        <div style="margin: 8px 0; font-size: 14px;">
+                                            <strong style="color: #333;">Website:</strong> 
+                                            <a href="${profile.website}" target="_blank" style="color: #667eea; text-decoration: none; margin-left: 8px;">${profile.website}</a>
+                                        </div>
+                                    ` : ''}
+                                    ${profile.company_description ? `
+                                        <div style="margin: 16px 0;">
+                                            <div style="display: flex; align-items: center; margin-bottom: 8px; cursor: pointer;" onclick="toggleDescription('desc-${profile.id}')">
+                                                <span id="desc-icon-${profile.id}" style="margin-right: 6px; font-size: 12px;">▼</span>
+                                                <strong style="color: #333; font-size: 14px;">Company Description:</strong>
+                                            </div>
+                                            <div id="desc-${profile.id}" style="padding: 12px; background: white; border-radius: 4px; border: 1px solid #e0e0e0; color: #555; line-height: 1.6; font-size: 13px; white-space: pre-wrap; word-wrap: break-word; max-height: 200px; overflow-y: auto;">
+                                                ${profile.company_description.length > 500 ? profile.company_description.substring(0, 500) + '...' : profile.company_description}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div style="margin: 16px 0; padding: 16px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                                        <button onclick="generateMessages(${profile.id}, 'email')" class="action-btn primary" style="padding: 10px 20px; font-size: 14px;">📧 Generate Email</button>
+                                        <button onclick="generateMessages(${profile.id}, 'linkedin')" class="action-btn" style="padding: 10px 20px; font-size: 14px; background: #0077b5; color: white; border-color: #0077b5;">💼 Generate LinkedIn Messages</button>
+                                    </div>
+                                    <div id="messages-${profile.id}" style="display: none;"></div>
+                                    
+                                    ${profile.generated_email || profile.generated_linkedin_connection ? `
+                                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                                            <strong style="color: #333; display: block; margin-bottom: 12px; font-size: 14px;">📝 Generated Messages:</strong>
+                                            ${profile.generated_email ? `
+                                                <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                        <strong style="color: #667eea; font-size: 13px;">📧 Sales Email</strong>
+                                                        <button onclick="copyToClipboard('saved-email-${profile.id}', this)" class="action-btn" style="padding: 4px 12px; font-size: 12px;">Copy</button>
+                                                    </div>
+                                                    <div id="saved-email-${profile.id}" style="white-space: pre-wrap; line-height: 1.6; color: #555; font-size: 13px;">${profile.generated_email}</div>
+                                                </div>
+                                            ` : ''}
+                                            ${profile.generated_linkedin_connection ? `
+                                                <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                        <strong style="color: #0077b5; font-size: 13px;">💼 LinkedIn Connection</strong>
+                                                        <button onclick="copyToClipboard('saved-linkedin-conn-${profile.id}', this)" class="action-btn" style="padding: 4px 12px; font-size: 12px;">Copy</button>
+                                                    </div>
+                                                    <div id="saved-linkedin-conn-${profile.id}" style="white-space: pre-wrap; line-height: 1.6; color: #555; font-size: 13px;">${profile.generated_linkedin_connection}</div>
+                                                </div>
+                                            ` : ''}
+                                            ${profile.generated_linkedin_followup ? `
+                                                <div style="margin-bottom: 12px; padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e0e0;">
+                                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                                        <strong style="color: #0077b5; font-size: 13px;">💬 LinkedIn Follow-up</strong>
+                                                        <button onclick="copyToClipboard('saved-linkedin-followup-${profile.id}', this)" class="action-btn" style="padding: 4px 12px; font-size: 12px;">Copy</button>
+                                                    </div>
+                                                    <div id="saved-linkedin-followup-${profile.id}" style="white-space: pre-wrap; line-height: 1.6; color: #555; font-size: 13px;">${profile.generated_linkedin_followup}</div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0; color: #999; font-size: 12px;">
+                                    Enriched: ${profile.updated_at ? new Date(profile.updated_at).toLocaleString() : 'N/A'}
+                                    ${profile.messages_generated_at ? ` | Messages: ${new Date(profile.messages_generated_at).toLocaleString()}` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    contentDiv.innerHTML = html;
+                    
+                    // Update pagination
+                    if (paginationDiv) {
+                        paginationDiv.style.display = 'flex';
+                        document.getElementById('pageInfo').textContent = `Page ${page} of ${totalPages}`;
+                        document.getElementById('prevPageBtn').disabled = page <= 1;
+                        document.getElementById('nextPageBtn').disabled = page >= totalPages;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading enriched profiles:', error);
+                    contentDiv.innerHTML = `<div style="padding: 20px; color: #ef4444;">❌ Error loading profiles. Please try again.</div>`;
+                });
+        }
+        
+        function toggleDescription(id) {
+            const descDiv = document.getElementById(id);
+            const icon = document.getElementById(id.replace('desc-', 'desc-icon-'));
+            if (descDiv && icon) {
+                if (descDiv.style.display === 'none') {
+                    descDiv.style.display = 'block';
+                    icon.textContent = '▼';
+                } else {
+                    descDiv.style.display = 'none';
+                    icon.textContent = '▶';
+                }
+            }
+        }
+        
+        function toggleSection(element) {
+            const section = element.closest('.message-section');
+            section.classList.toggle('collapsed');
+            const icon = element.querySelector('span');
+            icon.textContent = section.classList.contains('collapsed') ? '▶' : '▼';
+        }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chatInputBottom');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML += `
+                <div class="chat-message">
+                    <div class="message-section">
+                        <div class="message-section-title">You</div>
+                        <div class="message-section-content">${message}</div>
+                    </div>
+                </div>
+            `;
+            
+            input.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // Simulate AI response
+            setTimeout(() => {
+                messagesDiv.innerHTML += `
+                    <div class="chat-message">
+                        <div class="message-section">
+                            <div class="message-section-title">AI Assistant</div>
+                            <div class="message-section-content">I understand you want help with: "${message}". How can I assist you with your LinkedIn enrichment data?</div>
+                        </div>
+                    </div>
+                `;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 500);
+        }
+        
+        function undoAction() {
+            console.log('Undo action');
+        }
+        
+        function redoAction() {
+            console.log('Redo action');
+        }
+        
+        function enrichSelected() {
+            console.log('Enrich selected');
+        }
+        
+        function shareSheet() {
+            console.log('Share sheet');
+        }
+        
+        function initFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            if (!uploadArea || !fileInput) return;
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '#f0f0f0';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.background = '#f8f9fa';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.background = '#f8f9fa';
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+        }
+        
+        // Initialize with messages view
+        window.addEventListener('DOMContentLoaded', function() {
+            switchView('messages');
+            // Don't auto-load profiles - let user click to load
+        });
+        
+        // Column Management
+        function addColumn() {
+            // Open modal
+            document.getElementById('addColumnModal').classList.add('active');
+            // Reset form
+            document.getElementById('modalColumnName').value = '';
+            document.getElementById('modalDataType').value = 'text';
+            document.getElementById('modalPrompt').value = '';
+            document.getElementById('modalContextScope').value = 'all';
+            document.getElementById('restrictSourcesToggle').classList.remove('active');
+            document.getElementById('modalCheckbox').checked = false;
+        }
+        
+        function closeAddColumnModal() {
+            document.getElementById('addColumnModal').classList.remove('active');
+        }
+        
+        function updateDataTypeDisplay() {
+            const dataType = document.getElementById('modalDataType').value;
+            const promptField = document.getElementById('modalPrompt');
+            
+            if (dataType === '1st_connect') {
+                promptField.value = 'Generate a LinkedIn connection request message (under 300 characters) for this person.';
+            } else if (dataType === 'after_connect') {
+                promptField.value = 'Generate a follow-up message after the connection request is accepted. Use the previous connection message as context.';
+            }
+        }
+        
+        function toggleRestrictSources() {
+            const toggle = document.getElementById('restrictSourcesToggle');
+            toggle.classList.toggle('active');
+        }
+        
+        function confirmAddColumn() {
+            const name = document.getElementById('modalColumnName').value.trim();
+            const type = document.getElementById('modalDataType').value;
+            const prompt = document.getElementById('modalPrompt').value.trim();
+            const contextScope = document.getElementById('modalContextScope').value;
+            const restrictSources = document.getElementById('restrictSourcesToggle').classList.contains('active');
+            
+            if (!name) {
+                alert('Please enter a column name');
+                return;
+            }
+            
+            // Check if column already exists
+            if (currentColumns.find(col => col.name === name)) {
+                alert('Column with this name already exists');
+                return;
+            }
+            
+            currentColumns.push({
+                name: name,
+                type: type,
+                prompt: prompt,
+                contextScope: contextScope,
+                restrictSources: restrictSources
+            });
+            
+            closeAddColumnModal();
+            renderColumnConfigs();
+            renderGrid();
+        }
+        
+        function removeColumn(index) {
+            if (confirm(`Are you sure you want to remove the column "${currentColumns[index].name}"? This will only remove it from the view, not from the database.`)) {
+                currentColumns.splice(index, 1);
+                renderColumnConfigs();
+                if (revoGridInstance) {
+                    revoGridInstance = null; // Force recreation
+                }
+                renderGrid();
+            }
+        }
+        
+        function updateColumnHeader(element, columnType) {
+            const newName = element.textContent.trim();
+            const originalName = element.getAttribute('data-original-name');
+            
+            if (!newName) {
+                // Restore original name
+                const defaultNames = {
+                    'firstName': 'First Name',
+                    'lastName': 'Last Name',
+                    'title': 'Title',
+                    'company': 'Company',
+                    'com': 'Com'
+                };
+                element.textContent = originalName || defaultNames[columnType] || element.textContent;
+                if (window.columnHeaderOverrides && window.columnHeaderOverrides[columnType]) {
+                    delete window.columnHeaderOverrides[columnType];
+                }
+                element.contentEditable = 'false';
+                element.classList.remove('editing');
+                renderGrid(); // Re-render to update header
+                return;
+            }
+            
+            // Store the header name change (UI only, not in DB)
+            if (!window.columnHeaderOverrides) {
+                window.columnHeaderOverrides = {};
+            }
+            window.columnHeaderOverrides[columnType] = newName;
+            element.contentEditable = 'false';
+            element.classList.remove('editing');
+            renderGrid(); // Re-render to update header everywhere
+        }
+        
+        function updateCustomColumnHeader(element, columnIndex) {
+            const newName = element.textContent.trim();
+            if (!newName) {
+                element.textContent = currentColumns[columnIndex].name;
+                return;
+            }
+            // Update column name in UI only
+            if (currentColumns[columnIndex]) {
+                currentColumns[columnIndex].name = newName;
+            }
+            element.contentEditable = 'false';
+            element.classList.remove('editing');
+            renderGrid(); // Re-render to update all cells
+        }
+        
+        function handleHeaderKeydown(event, element) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                element.blur();
+            } else if (event.key === 'Escape') {
+                event.preventDefault();
+                element.textContent = element.getAttribute('data-original-name') || element.textContent;
+                element.contentEditable = 'false';
+                element.classList.remove('editing');
+            }
+        }
+        
+        // Make headers editable on double-click
+        document.addEventListener('dblclick', function(e) {
+            if (e.target.classList.contains('column-header-text')) {
+                e.target.contentEditable = 'true';
+                e.target.classList.add('editing');
+                e.target.setAttribute('data-original-name', e.target.textContent);
+                e.target.focus();
+                // Select all text
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        });
+        
+        function renderColumnConfigs() {
+            const container = document.getElementById('columnConfigs');
+            let html = '';
+            
+            currentColumns.forEach((col, index) => {
+                html += `
+                    <div class="column-config" style="margin-bottom: 10px;">
+                        <input type="text" value="${col.name}" readonly style="flex: 1; background: #d1d9e6;">
+                        <select class="column-type-select" disabled>
+                            <option value="text" ${col.type === 'text' ? 'selected' : ''}>Text</option>
+                            <option value="1st_connect" ${col.type === '1st_connect' ? 'selected' : ''}>1st Connect</option>
+                            <option value="after_connect" ${col.type === 'after_connect' ? 'selected' : ''}>After Connect</option>
+                        </select>
+                        <button onclick="removeColumn(${index})" class="btn" style="background: #ef4444; color: white; padding: 10px 15px;">Remove</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Grid Management
+        function loadGridData() {
+            const gridContent = document.getElementById('gridContent');
+            if (!gridContent) {
+                console.error('Grid content element not found');
+                return;
+            }
+            
+            // Show loading state
+            gridContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #667eea;">⏳ Loading enriched profiles...</div>';
+            
+            // Load all profiles (use a high limit to get all)
+            fetch('/enriched-profiles?page=1&limit=1000')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        gridContent.innerHTML = `<div style="padding: 20px; color: #ef4444;">❌ Error: ${data.error}</div>`;
+                        return;
+                    }
+                    
+                    gridData = data.profiles || [];
+                    
+                    if (gridData.length === 0) {
+                        gridContent.innerHTML = '<div style="text-align: center; padding: 40px; color: #718096;"><p>No enriched profiles found. Complete an enrichment job first.</p></div>';
+                        return;
+                    }
+                    
+                    renderGrid();
+                })
+                .catch(error => {
+                    console.error('Error loading grid data:', error);
+                    gridContent.innerHTML = '<div style="padding: 20px; color: #ef4444;">❌ Error loading profiles. Please try again.</div>';
+                });
+        }
+        
+        let revoGridInstance = null;
+        
+        function renderGrid() {
+            const container = document.getElementById('gridContent');
+            
+            if (gridData.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #718096;"><p>No profiles loaded. Click "Load Enriched Profiles" to populate.</p></div>';
+                return;
+            }
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Get header overrides
+            const headerOverrides = window.columnHeaderOverrides || {};
+            
+            // Build RevoGrid columns
+            const columns = [];
+            
+            // Checkbox column with select all in header
+            columns.push({
+                prop: '_selected',
+                name: '☑',
+                size: 50,
+                pin: 'colPinStart',
+                readonly: true,
+                headerTemplate: (h, props) => {
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.onchange = (e) => {
+                        gridData.forEach(profile => {
+                            profile._selected = e.target.checked;
+                        });
+                        if (revoGridInstance) {
+                            revoGridInstance.source = [...revoGridInstance.source];
+                        }
+                    };
+                    return checkbox;
+                },
+                cellTemplate: (h, props) => {
+                    const rowIndex = props.model.rowIndex;
+                    const profile = gridData[rowIndex];
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = profile._selected || false;
+                    checkbox.onchange = (e) => {
+                        profile._selected = e.target.checked;
+                    };
+                    return checkbox;
+                }
+            });
+            
+            // Fixed columns
+            columns.push({
+                prop: 'firstName',
+                name: headerOverrides.firstName || 'First Name',
+                size: 150,
+                pin: 'colPinStart',
+                readonly: true
+            });
+            
+            columns.push({
+                prop: 'lastName',
+                name: headerOverrides.lastName || 'Last Name',
+                size: 150,
+                readonly: true
+            });
+            
+            columns.push({
+                prop: 'title',
+                name: headerOverrides.title || 'Title',
+                size: 200,
+                readonly: true
+            });
+            
+            columns.push({
+                prop: 'company',
+                name: headerOverrides.company || 'Company',
+                size: 200,
+                readonly: true
+            });
+            
+            columns.push({
+                prop: 'website',
+                name: headerOverrides.com || 'Com',
+                size: 200,
+                readonly: true,
+                cellTemplate: (h, props) => {
+                    const website = props.model[props.prop] || '';
+                    if (!website) {
+                        const span = document.createElement('span');
+                        return span;
+                    }
+                    const displayUrl = website.replace(/^https?:\/\//, '');
+                    const link = document.createElement('a');
+                    link.href = website;
+                    link.target = '_blank';
+                    link.textContent = displayUrl;
+                    return link;
+                }
+            });
+            
+            // Dynamic columns
+            currentColumns.forEach((col, colIndex) => {
+                const columnDef = {
+                    prop: `_custom_${colIndex}`,
+                    name: col.name,
+                    size: 200,
+                    readonly: false
+                };
+                
+                // Custom cell template based on column type - minimal styling, let RevoGrid handle appearance
+                if (col.type === '1st_connect') {
+                    columnDef.cellTemplate = (h, props) => {
+                        const rowIndex = props.model.rowIndex;
+                        const profile = gridData[rowIndex];
+                        const existingValue = (profile.custom_columns_data && profile.custom_columns_data[col.name]) || '';
+                        
+                        if (!existingValue) {
+                            const btn = document.createElement('button');
+                            btn.textContent = 'Generate';
+                            btn.onclick = () => generateFirstConnectRevoGrid(profile.id, col.name, rowIndex);
+                            return btn;
+                        } else {
+                            const textarea = document.createElement('textarea');
+                            textarea.value = existingValue;
+                            textarea.style.cssText = 'width: 100%; min-height: 40px; resize: vertical;';
+                            textarea.onblur = (e) => saveCellValue(profile.id, col.name, rowIndex, colIndex, e.target.value);
+                            return textarea;
+                        }
+                    };
+                } else if (col.type === 'after_connect') {
+                    columnDef.cellTemplate = (h, props) => {
+                        const rowIndex = props.model.rowIndex;
+                        const profile = gridData[rowIndex];
+                        const existingValue = (profile.custom_columns_data && profile.custom_columns_data[col.name]) || '';
+                        const firstConnectCol = currentColumns.find(c => c.type === '1st_connect');
+                        const firstConnectValue = firstConnectCol && profile.custom_columns_data && profile.custom_columns_data[firstConnectCol.name] ? profile.custom_columns_data[firstConnectCol.name] : '';
+                        
+                        if (!existingValue) {
+                            if (firstConnectValue) {
+                                const btn = document.createElement('button');
+                                btn.textContent = 'Generate';
+                                btn.onclick = () => generateAfterConnectRevoGrid(profile.id, col.name, firstConnectCol.name, rowIndex);
+                                return btn;
+                            } else {
+                                const span = document.createElement('span');
+                                span.textContent = 'Generate 1st Connect first';
+                                return span;
+                            }
+                        } else {
+                            const textarea = document.createElement('textarea');
+                            textarea.value = existingValue;
+                            textarea.style.cssText = 'width: 100%; min-height: 40px; resize: vertical;';
+                            textarea.onblur = (e) => saveCellValue(profile.id, col.name, rowIndex, colIndex, e.target.value);
+                            return textarea;
+                        }
+                    };
+                } else {
+                    // Regular text column - editable, let RevoGrid handle styling
+                    columnDef.cellTemplate = (h, props) => {
+                        const rowIndex = props.model.rowIndex;
+                        const profile = gridData[rowIndex];
+                        const existingValue = (profile.custom_columns_data && profile.custom_columns_data[col.name]) || '';
+                        const textarea = document.createElement('textarea');
+                        textarea.value = existingValue;
+                        textarea.style.cssText = 'width: 100%; min-height: 40px; resize: vertical;';
+                        textarea.onblur = (e) => saveCellValue(profile.id, col.name, rowIndex, colIndex, e.target.value);
+                        return textarea;
+                    };
+                }
+                
+                // Add remove button to header for custom columns
+                const originalName = col.name;
+                columnDef.headerTemplate = (h, props) => {
+                    const headerDiv = document.createElement('div');
+                    headerDiv.style.display = 'flex';
+                    headerDiv.style.alignItems = 'center';
+                    headerDiv.style.justifyContent = 'space-between';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = col.name;
+                    nameSpan.contentEditable = 'true';
+                    nameSpan.style.flex = '1';
+                    nameSpan.onblur = (e) => {
+                        const newName = e.target.textContent.trim();
+                        if (newName && newName !== col.name) {
+                            col.name = newName;
+                            renderGrid();
+                        } else {
+                            e.target.textContent = col.name;
+                        }
+                    };
+                    nameSpan.onkeydown = (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.target.blur();
+                        } else if (e.key === 'Escape') {
+                            e.target.textContent = col.name;
+                            e.target.blur();
+                        }
+                    };
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = '×';
+                    removeBtn.style.cssText = 'margin-left: 8px; cursor: pointer; background: transparent; border: none; font-size: 18px;';
+                    removeBtn.onclick = () => removeColumn(colIndex);
+                    
+                    headerDiv.appendChild(nameSpan);
+                    headerDiv.appendChild(removeBtn);
+                    return headerDiv;
+                };
+                
+                columns.push(columnDef);
+            });
+            
+            // Transform gridData for RevoGrid
+            const sourceData = gridData.map((profile) => {
+                // Use CSV firstname/lastname if available, otherwise parse from name
+                let firstName = '';
+                let lastName = '';
+                
+                if (profile.csv_firstname || profile.csv_lastname) {
+                    firstName = profile.csv_firstname || '';
+                    lastName = profile.csv_lastname || '';
+                } else if (profile.name) {
+                    const nameParts = profile.name.trim().split(/\s+/);
+                    firstName = nameParts[0] || '';
+                    lastName = nameParts.slice(1).join(' ') || '';
+                }
+                
+                // Use website from step4 or CSV
+                const website = profile.website || profile.csv_website || '';
+                
+                const row = {
+                    _profileId: profile.id,
+                    _selected: profile._selected || false,
+                    firstName: firstName,
+                    lastName: lastName,
+                    title: 'N/A',
+                    company: profile.company_name || '',
+                    website: website
+                };
+                
+                // Add custom column data
+                currentColumns.forEach((col, colIndex) => {
+                    const value = (profile.custom_columns_data && profile.custom_columns_data[col.name]) || '';
+                    row[`_custom_${colIndex}`] = value;
+                });
+                
+                return row;
+            });
+            
+            // Create or update RevoGrid
+            if (revoGridInstance && revoGridInstance.parentNode) {
+                revoGridInstance.columns = columns;
+                revoGridInstance.source = sourceData;
+            } else {
+                const grid = document.createElement('revo-grid');
+                grid.columns = columns;
+                grid.source = sourceData;
+                // Use RevoGrid's default theme for native look
+                grid.theme = 'default';
+                container.appendChild(grid);
+                revoGridInstance = grid;
+            }
+            
+            // Add "Add Column" button - minimal styling, let RevoGrid handle the rest
+            const existingAddBtn = container.querySelector('.add-column-btn-revo');
+            if (existingAddBtn) {
+                existingAddBtn.remove();
+            }
+            const addColumnDiv = document.createElement('div');
+            addColumnDiv.className = 'add-column-btn-revo';
+            const addBtn = document.createElement('button');
+            addBtn.textContent = '+ Add column';
+            addBtn.onclick = addColumn;
+            addColumnDiv.appendChild(addBtn);
+            container.appendChild(addColumnDiv);
+        }
+        
+        function setupRevoGridHeaderEditing() {
+            // Setup double-click editing for headers
+            if (!revoGridInstance) return;
+            
+            // This will be handled by RevoGrid's built-in header editing or we can add custom handlers
+            // For now, we'll rely on the column name updates through removeColumn and addColumn functions
+        }
+        
+        function updateSelectAllState() {
+            // This will be called when checkboxes change
+            // RevoGrid handles selection internally
+        }
+        
+        function generateFirstConnectRevoGrid(profileId, columnName, rowIndex) {
+            const profile = gridData.find(p => p.id === profileId);
+            if (!profile) return;
+            
+            fetch(`/generate-column-message/${profileId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    column_name: columnName,
+                    column_type: '1st_connect',
+                    max_length: 300
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+                
+                const message = data.message.substring(0, 300);
+                if (!profile.custom_columns_data) {
+                    profile.custom_columns_data = {};
+                }
+                profile.custom_columns_data[columnName] = message;
+                saveCellValue(profileId, columnName, rowIndex, -1, message);
+                renderGrid(); // Re-render to show the textarea
+            })
+            .catch(error => {
+                console.error('Error generating message:', error);
+                alert('Error generating message');
+            });
+        }
+        
+        function generateAfterConnectRevoGrid(profileId, columnName, firstConnectColumnName, rowIndex) {
+            const profile = gridData.find(p => p.id === profileId);
+            if (!profile) return;
+            
+            const firstConnectMessage = profile.custom_columns_data && profile.custom_columns_data[firstConnectColumnName] ? profile.custom_columns_data[firstConnectColumnName] : '';
+            
+            fetch(`/generate-column-message/${profileId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    column_name: columnName,
+                    column_type: 'after_connect',
+                    first_connect_message: firstConnectMessage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+                
+                const message = data.message || '';
+                if (!profile.custom_columns_data) {
+                    profile.custom_columns_data = {};
+                }
+                profile.custom_columns_data[columnName] = message;
+                saveCellValue(profileId, columnName, rowIndex, -1, message);
+                renderGrid(); // Re-render to show the textarea
+            })
+            .catch(error => {
+                console.error('Error generating message:', error);
+                alert('Error generating message');
+            });
+        }
+        
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+            const isChecked = selectAllCheckbox.checked;
+            
+            rowCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const row = checkbox.closest('tr');
+                if (isChecked) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            });
+        }
+        
+        function toggleRowSelection(rowIndex) {
+            const checkbox = document.querySelector(`.row-checkbox[data-row-index="${rowIndex}"]`);
+            const row = checkbox.closest('tr');
+            
+            if (checkbox.checked) {
+                row.classList.add('selected');
+            } else {
+                row.classList.remove('selected');
+            }
+            
+            // Update select all checkbox state
+            const allCheckboxes = document.querySelectorAll('.row-checkbox');
+            const checkedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
+            if (checkedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCount === allCheckboxes.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+        
+        function generateFirstConnect(profileId, columnName, rowIndex, colIndex) {
+            const cellId = `cell-${rowIndex}-${colIndex}`;
+            const cellDiv = document.getElementById(cellId);
+            cellDiv.innerHTML = '⏳ Generating...';
+            
+            fetch(`/generate-column-message/${profileId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    column_name: columnName,
+                    column_type: '1st_connect',
+                    max_length: 300
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    cellDiv.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
+                    return;
+                }
+                
+                const message = data.message.substring(0, 300);
+                cellDiv.innerHTML = `<textarea rows="3" onblur="saveCellValue(${profileId}, '${columnName}', ${rowIndex}, ${colIndex})" style="width: 100%; min-height: 60px;">${message}</textarea>`;
+                saveCellValue(profileId, columnName, rowIndex, colIndex, message);
+            })
+            .catch(error => {
+                console.error('Error generating message:', error);
+                cellDiv.innerHTML = `<span style="color: #ef4444;">Error generating message</span>`;
+            });
+        }
+        
+        function generateAfterConnect(profileId, columnName, firstConnectColumnName, rowIndex, colIndex) {
+            const cellId = `cell-${rowIndex}-${colIndex}`;
+            const cellDiv = document.getElementById(cellId);
+            cellDiv.innerHTML = '⏳ Generating...';
+            
+            // Get first connect message from grid data
+            const profile = gridData.find(p => p.id === profileId);
+            let firstConnectMessage = '';
+            if (profile && profile.custom_columns_data) {
+                firstConnectMessage = profile.custom_columns_data[firstConnectColumnName] || '';
+            }
+            
+            // Escape the message for JSON
+            const escapedMessage = firstConnectMessage.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+            
+            fetch(`/generate-column-message/${profileId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    column_name: columnName,
+                    column_type: 'after_connect',
+                    first_connect_message: firstConnectMessage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    cellDiv.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
+                    return;
+                }
+                
+                const message = data.message || '';
+                cellDiv.innerHTML = `<textarea id="${cellId}-textarea" rows="3" onblur="saveCellValue(${profileId}, '${columnName}', ${rowIndex}, ${colIndex})" style="width: 100%; min-height: 60px;">${message}</textarea>`;
+                saveCellValue(profileId, columnName, rowIndex, colIndex, message);
+            })
+            .catch(error => {
+                console.error('Error generating message:', error);
+                cellDiv.innerHTML = `<span style="color: #ef4444;">Error generating message</span>`;
+            });
+        }
+        
+        function saveCellValue(profileId, columnName, rowIndex, colIndex, value) {
+            const cellValue = value || '';
+            
+            fetch(`/save-column-value/${profileId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    column_name: columnName,
+                    value: cellValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update grid data
+                    const profile = gridData.find(p => p.id === profileId);
+                    if (profile) {
+                        if (!profile.custom_columns_data) {
+                            profile.custom_columns_data = {};
+                        }
+                        profile.custom_columns_data[columnName] = cellValue;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error saving cell value:', error);
+            });
+        }
+
+        function showJobStatus(jobId) {
+            document.getElementById('jobSection').style.display = 'block';
+            updateJobStatus({ id: jobId, status: 'pending', processed: 0, total: 0 });
+        }
+
+        function updateJobStatus(data) {
+            const jobStatusDiv = document.getElementById('jobStatus');
+            const progress = data.total > 0 ? (data.processed / data.total * 100) : 0;
+
+            jobStatusDiv.innerHTML = `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-title">Job: ${data.id.substring(0, 8)}...</div>
+                        <span class="job-status status-${data.status}">${data.status.toUpperCase()}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%">
+                            ${data.processed} / ${data.total}
+                        </div>
+                    </div>
+                    <p style="margin-top: 10px; color: #666;">
+                        Processed: ${data.processed} of ${data.total} profiles
+                    </p>
+                    ${data.status === 'completed' ? `
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-success" onclick="downloadResults('${data.id}', 'csv')">Download CSV</button>
+                            <button class="btn btn-success" onclick="downloadResults('${data.id}', 'json')">Download JSON</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function loadResults(jobId) {
+            fetch(`/results/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert('uploadStatus', data.error, 'error');
+                    } else {
+                        displayResults(data.results, data.errors);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading results:', error);
+                });
+        }
+
+        function displayResults(results, errors) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+
+            resultsSection.style.display = 'block';
+
+            let html = `<p style="margin-bottom: 15px;"><strong>Total Results: ${results.length}</strong></p>`;
+
+            if (errors.length > 0) {
+                html += `<div class="alert alert-error"><strong>Errors: ${errors.length}</strong></div>`;
+            }
+
+            if (results.length > 0) {
+                html += `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Company</th>
+                                <th>Website</th>
+                                <th>Company Description</th>
+                                <th>LinkedIn URL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                results.forEach((result, index) => {
+                    const description = result.company_description || 'N/A';
+                    const hasDescription = description !== 'N/A' && description.length > 0;
+                    const descPreview = hasDescription && description.length > 300 
+                        ? description.substring(0, 300) + '...' 
+                        : description;
+                    
+                    html += `
+                        <tr>
+                            <td>${result.name || 'N/A'}</td>
+                            <td>${result.company_name || 'N/A'}</td>
+                            <td>${result.website ? `<a href="${result.website}" target="_blank">${result.website}</a>` : 'N/A'}</td>
+                            <td style="max-width: 500px; word-wrap: break-word; font-size: 0.9em; color: #555;">
+                                ${hasDescription ? `<div style="max-height: 150px; overflow-y: auto; padding: 8px; background: #f8f9fa; border-radius: 4px; white-space: pre-wrap;">${descPreview}</div><div style="margin-top: 5px; color: #667eea; font-size: 0.85em;">Length: ${description.length} chars</div>` : 'N/A'}
+                            </td>
+                            <td><a href="${result.linkedin_url}" target="_blank">View Profile</a></td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+            }
+
+            resultsContent.innerHTML = html;
+        }
+
+        function downloadResults(jobId, format) {
+            window.location.href = `/download/${jobId}/${format}`;
+        }
+
+        function showAlert(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            const alertClass = `alert alert-${type}`;
+            element.innerHTML = `<div class="${alertClass}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>
+
